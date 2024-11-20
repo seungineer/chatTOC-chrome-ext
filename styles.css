@@ -1,0 +1,45 @@
+#toc-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1000;
+  min-width: 200px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  color: #000000;
+}
+
+#toc-container .toc-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding: 5px;
+  border-bottom: 1px solid #eee;
+  color: #000000;
+}
+
+#toc-container .toc-entry {
+  cursor: pointer;
+  margin-bottom: 8px;
+  padding: 5px;
+  border-radius: 3px;
+  color: #000000;
+  font-size: 14px;
+  background-color: #ffffff;
+}
+
+#toc-container .toc-entry:hover {
+  background-color: #f0f0f0;
+}
+
+.chat-title-input {
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+} 
