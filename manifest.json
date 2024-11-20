@@ -13,6 +13,7 @@
         "https://chat.openai.com/*",
         "https://chatgpt.com/*"
       ],
+      "css": ["styles.css"],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
