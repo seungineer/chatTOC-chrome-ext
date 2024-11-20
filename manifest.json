@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "ChatGPT TOC Manager",
+  "version": "1.0",
+  "permissions": [
+    "storage",
+    "scripting",
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://chat.openai.com/*",
+        "https://chatgpt.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": ["https://chat.openai.com/*"]
+}
