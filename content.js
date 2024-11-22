@@ -15,29 +15,6 @@ const createTOC = () => {
   tocTitle.innerText = 'Table of Contents';
   tocTitle.classList.add('toc-title');
   tocContainer.appendChild(tocTitle);
-
-  const chatElements = document.querySelectorAll('[data-chat-id]');
-  chatElements.forEach((chatElement) => {
-    const chatId = chatElement.getAttribute('data-chat-id');
-    const prevInput = chatElement.previousElementSibling;
-    const title
-      = prevInput && prevInput.tagName === 'INPUT' && prevInput.value
-        ? prevInput.value
-        : `Chat ${chatId.split('-')[1]}`;
-
-    const tocEntry = document.createElement('div');
-    tocEntry.innerText = title;
-    tocEntry.classList.add('toc-entry');
-
-    tocEntry.addEventListener('click', () => {
-      chatElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
-
-    tocContainer.appendChild(tocEntry);
-  });
 };
 
 const initializePage = () => {
@@ -47,6 +24,41 @@ const initializePage = () => {
 
   let hasNewElements = false;
 
+  const addTocEntry = (chatId, title, chatElement) => {
+    const tocContainer = document.getElementById('toc-container');
+    if (!tocContainer) return;
+
+    const tocEntry = document.createElement('div');
+    tocEntry.innerText = title;
+    tocEntry.classList.add('toc-entry');
+    tocEntry.setAttribute('data-toc-id', chatId);
+
+    tocEntry.addEventListener('click', () => {
+      chatElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    });
+
+    const existingEntries = Array.from(tocContainer.children).filter((child) =>
+      child.classList.contains('toc-entry'),
+    );
+
+    const currentNumber = parseInt(chatId.split('-')[1], 10);
+
+    const insertPosition = existingEntries.find((entry) => {
+      const entryId = entry.getAttribute('data-toc-id');
+      const entryNumber = parseInt(entryId.split('-')[1], 10);
+      return entryNumber > currentNumber;
+    });
+
+    if (insertPosition) {
+      tocContainer.insertBefore(tocEntry, insertPosition);
+    } else {
+      tocContainer.appendChild(tocEntry);
+    }
+  };
+
   chatElements.forEach((chatElement, index) => {
     if (chatElement.hasAttribute('data-chat-id')) {
       return;
@@ -55,6 +67,9 @@ const initializePage = () => {
     hasNewElements = true;
     const chatId = `chat-${index}`;
     chatElement.setAttribute('data-chat-id', chatId);
+
+    const form = document.createElement('form');
+    form.classList.add('chat-title-form');
 
     const titleInput = document.createElement('input');
     titleInput.type = 'text';
@@ -66,8 +81,19 @@ const initializePage = () => {
     titleInput.style.border = '1px solid #ccc';
     titleInput.style.borderRadius = '4px';
 
-    titleInput.setAttribute('data-input', 'true');
-    chatElement.insertAdjacentElement('beforebegin', titleInput);
+    titleInput.addEventListener('focus', () => {
+      titleInput.placeholder = '';
+    });
+
+    titleInput.addEventListener('blur', () => {
+      if (!titleInput.value) {
+        titleInput.placeholder = '대화 제목을 입력하세요';
+      }
+    });
+
+    form.appendChild(titleInput);
+    form.setAttribute('data-input', 'true');
+    chatElement.insertAdjacentElement('beforebegin', form);
 
     chrome.storage.sync.get(chatId, (result) => {
       if (result[chatId]) {
@@ -75,21 +101,33 @@ const initializePage = () => {
       }
     });
 
-    titleInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        const newTitle = titleInput.value;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newTitle = titleInput.value;
+      if (newTitle.trim()) {
         chrome.storage.sync.set({ [chatId]: newTitle }, () => {
-          createTOC();
+          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
+          if (tocEntry) {
+            tocEntry.innerText = newTitle;
+          } else {
+            addTocEntry(chatId, newTitle, chatElement);
+          }
         });
       }
     });
 
-    // input 값이 변경되고 포커스를 잃었을 때도 처리
     titleInput.addEventListener('blur', () => {
       const newTitle = titleInput.value;
-      chrome.storage.sync.set({ [chatId]: newTitle }, () => {
-        createTOC();
-      });
+      if (newTitle.trim()) {
+        chrome.storage.sync.set({ [chatId]: newTitle }, () => {
+          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
+          if (tocEntry) {
+            tocEntry.innerText = newTitle;
+          } else {
+            addTocEntry(chatId, newTitle, chatElement);
+          }
+        });
+      }
     });
   });
 
