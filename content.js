@@ -58,6 +58,12 @@ const initializePage = () => {
       tocContainer.appendChild(tocEntry);
     }
   };
+  // NOTE - 현재 대화방의 고유 키 값 반환
+  const getCurrentPageKey = () => {
+    const url = window.location.pathname;
+    const match = url.match(/\/c\/([^/]+)/);
+    return match ? match[1] : 'default';
+  };
 
   chatElements.forEach((chatElement, index) => {
     if (chatElement.hasAttribute('data-chat-id')) {
@@ -81,6 +87,7 @@ const initializePage = () => {
     titleInput.style.border = '1px solid #ccc';
     titleInput.style.borderRadius = '4px';
 
+    titleInput.style.color = 'black';
     titleInput.addEventListener('focus', () => {
       titleInput.placeholder = '';
     });
@@ -95,9 +102,10 @@ const initializePage = () => {
     form.setAttribute('data-input', 'true');
     chatElement.insertAdjacentElement('beforebegin', form);
 
-    chrome.storage.sync.get(chatId, (result) => {
-      if (result[chatId]) {
-        titleInput.value = result[chatId];
+    chrome.storage.sync.get(getCurrentPageKey(), (result) => {
+      const pageData = result[getCurrentPageKey()] || {};
+      if (pageData[chatId]) {
+        titleInput.value = pageData[chatId];
       }
     });
 
@@ -105,13 +113,20 @@ const initializePage = () => {
       e.preventDefault();
       const newTitle = titleInput.value;
       if (newTitle.trim()) {
-        chrome.storage.sync.set({ [chatId]: newTitle }, () => {
-          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
-          if (tocEntry) {
-            tocEntry.innerText = newTitle;
-          } else {
-            addTocEntry(chatId, newTitle, chatElement);
-          }
+        chrome.storage.sync.get(getCurrentPageKey(), (result) => {
+          const pageData = result[getCurrentPageKey()] || {};
+          pageData[chatId] = newTitle;
+
+          chrome.storage.sync.set({ [getCurrentPageKey()]: pageData }, () => {
+            const tocEntry = document.querySelector(
+              `[data-toc-id="${chatId}"]`,
+            );
+            if (tocEntry) {
+              tocEntry.innerText = newTitle;
+            } else {
+              addTocEntry(chatId, newTitle, chatElement);
+            }
+          });
         });
       }
     });
@@ -119,13 +134,20 @@ const initializePage = () => {
     titleInput.addEventListener('blur', () => {
       const newTitle = titleInput.value;
       if (newTitle.trim()) {
-        chrome.storage.sync.set({ [chatId]: newTitle }, () => {
-          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
-          if (tocEntry) {
-            tocEntry.innerText = newTitle;
-          } else {
-            addTocEntry(chatId, newTitle, chatElement);
-          }
+        chrome.storage.sync.get(getCurrentPageKey(), (result) => {
+          const pageData = result[getCurrentPageKey()] || {};
+          pageData[chatId] = newTitle;
+
+          chrome.storage.sync.set({ [getCurrentPageKey()]: pageData }, () => {
+            const tocEntry = document.querySelector(
+              `[data-toc-id="${chatId}"]`,
+            );
+            if (tocEntry) {
+              tocEntry.innerText = newTitle;
+            } else {
+              addTocEntry(chatId, newTitle, chatElement);
+            }
+          });
         });
       }
     });
