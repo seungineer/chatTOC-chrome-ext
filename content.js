@@ -28,6 +28,12 @@ const initializePage = () => {
     const tocContainer = document.getElementById('toc-container');
     if (!tocContainer) return;
 
+    const existingEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
+    if (existingEntry) {
+      existingEntry.innerText = title;
+      return;
+    }
+
     const tocEntry = document.createElement('div');
     tocEntry.innerText = title;
     tocEntry.classList.add('toc-entry');
@@ -155,6 +161,17 @@ const initializePage = () => {
 
   if (hasNewElements) {
     createTOC();
+
+    chrome.storage.sync.get(getCurrentPageKey(), (result) => {
+      const pageData = result[getCurrentPageKey()] || {};
+
+      chatElements.forEach((chatElement, index) => {
+        const chatId = `chat-${index}`;
+        if (pageData[chatId]) {
+          addTocEntry(chatId, pageData[chatId], chatElement);
+        }
+      });
+    });
   }
 };
 
