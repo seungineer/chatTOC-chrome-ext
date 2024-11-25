@@ -96,6 +96,22 @@ const initializePage = async () => {
     const form = document.createElement('form');
     form.classList.add('chat-title-form');
 
+    let parentMaxWidth = '100%';
+
+    if (window.matchMedia('(min-width: 1280px)').matches) {
+      parentMaxWidth = '48rem';
+    } else if (window.matchMedia('(min-width: 1024px)').matches) {
+      parentMaxWidth = '40rem';
+    } else if (window.matchMedia('(min-width: 768px)').matches) {
+      parentMaxWidth = '48rem';
+    }
+
+    form.style.width = '100%';
+    form.style.maxWidth = parentMaxWidth;
+    form.style.margin = '0 auto';
+    form.style.boxSizing = 'border-box';
+    form.style.padding = '0 1rem';
+
     const titleInput = document.createElement('input');
     titleInput.type = 'text';
     titleInput.placeholder = '대화 제목을 입력하세요';
