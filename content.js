@@ -17,7 +17,20 @@ const createTOC = () => {
   tocContainer.appendChild(tocTitle);
 };
 
-const initializePage = () => {
+const getChromeStorage = async (key) => {
+  try {
+    return new Promise((resolve) => {
+      chrome.storage.sync.get(key, (result) => {
+        resolve(result[key] || {});
+      });
+    });
+  } catch (error) {
+    console.warn('Chrome storage access failed:', error);
+    return {};
+  }
+};
+
+const initializePage = async () => {
   const chatElements = document.querySelectorAll(
     'div.mx-auto.flex.flex-1.gap-4.text-base.md\\:gap-5.lg\\:gap-6.md\\:max-w-3xl.lg\\:max-w-\\[40rem\\].xl\\:max-w-\\[48rem\\]',
   );
@@ -71,7 +84,7 @@ const initializePage = () => {
     return match ? match[1] : 'default';
   };
 
-  chatElements.forEach((chatElement, index) => {
+  chatElements.forEach(async (chatElement, index) => {
     if (chatElement.hasAttribute('data-chat-id')) {
       return;
     }
@@ -108,74 +121,82 @@ const initializePage = () => {
     form.setAttribute('data-input', 'true');
     chatElement.insertAdjacentElement('beforebegin', form);
 
-    chrome.storage.sync.get(getCurrentPageKey(), (result) => {
-      const pageData = result[getCurrentPageKey()] || {};
-      if (pageData[chatId]) {
-        titleInput.value = pageData[chatId];
-      }
-    });
+    const pageData = await getChromeStorage(getCurrentPageKey());
+    if (pageData[chatId]) {
+      titleInput.value = pageData[chatId];
+    }
 
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const newTitle = titleInput.value;
       if (newTitle.trim()) {
-        chrome.storage.sync.get(getCurrentPageKey(), (result) => {
-          const pageData = result[getCurrentPageKey()] || {};
-          pageData[chatId] = newTitle;
+        const pageData = await getChromeStorage(getCurrentPageKey());
+        pageData[chatId] = newTitle;
 
-          chrome.storage.sync.set({ [getCurrentPageKey()]: pageData }, () => {
-            const tocEntry = document.querySelector(
-              `[data-toc-id="${chatId}"]`,
+        try {
+          await new Promise((resolve) => {
+            chrome.storage.sync.set(
+              { [getCurrentPageKey()]: pageData },
+              resolve,
             );
-            if (tocEntry) {
-              tocEntry.innerText = newTitle;
-            } else {
-              addTocEntry(chatId, newTitle, chatElement);
-            }
           });
-        });
+          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
+          if (tocEntry) {
+            tocEntry.innerText = newTitle;
+          } else {
+            addTocEntry(chatId, newTitle, chatElement);
+          }
+        } catch (error) {
+          console.warn('Failed to save to chrome storage:', error);
+        }
       }
     });
 
-    titleInput.addEventListener('blur', () => {
+    // blur 이벤트 핸들러도 동일하게 수정
+    titleInput.addEventListener('blur', async () => {
       const newTitle = titleInput.value;
       if (newTitle.trim()) {
-        chrome.storage.sync.get(getCurrentPageKey(), (result) => {
-          const pageData = result[getCurrentPageKey()] || {};
-          pageData[chatId] = newTitle;
+        const blurPageData = await getChromeStorage(getCurrentPageKey());
+        blurPageData[chatId] = newTitle;
 
-          chrome.storage.sync.set({ [getCurrentPageKey()]: pageData }, () => {
-            const tocEntry = document.querySelector(
-              `[data-toc-id="${chatId}"]`,
+        try {
+          await new Promise((resolve) => {
+            chrome.storage.sync.set(
+              { [getCurrentPageKey()]: blurPageData },
+              resolve,
             );
-            if (tocEntry) {
-              tocEntry.innerText = newTitle;
-            } else {
-              addTocEntry(chatId, newTitle, chatElement);
-            }
           });
-        });
+          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
+          if (tocEntry) {
+            tocEntry.innerText = newTitle;
+          } else {
+            addTocEntry(chatId, newTitle, chatElement);
+          }
+        } catch (error) {
+          console.warn('Failed to save to chrome storage:', error);
+        }
       }
     });
   });
 
+  // TOC 초기화 부분도 수정
   if (hasNewElements) {
     createTOC();
+    const pageData = await getChromeStorage(getCurrentPageKey());
 
-    chrome.storage.sync.get(getCurrentPageKey(), (result) => {
-      const pageData = result[getCurrentPageKey()] || {};
-
-      chatElements.forEach((chatElement, index) => {
-        const chatId = `chat-${index}`;
-        if (pageData[chatId]) {
-          addTocEntry(chatId, pageData[chatId], chatElement);
-        }
-      });
+    chatElements.forEach((chatElement, index) => {
+      const chatId = `chat-${index}`;
+      if (pageData[chatId]) {
+        addTocEntry(chatId, pageData[chatId], chatElement);
+      }
     });
   }
 };
 
-initializePage();
+// 초기 실행
+(async () => {
+  await initializePage();
+})();
 
 const observer = new MutationObserver((mutations) => {
   const hasRelevantChanges = mutations.some((mutation) => {
