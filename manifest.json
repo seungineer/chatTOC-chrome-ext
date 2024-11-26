@@ -21,6 +21,7 @@
         "utils/eventHandlers.js",
         "utils/tocHelper.js",
         "utils/form.js",
+        "utils/chat.js",
         "content.js"
       ],
       "run_at": "document_idle"
