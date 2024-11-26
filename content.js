@@ -2,6 +2,7 @@ const { getChromeStorage } = window.utils.chrome;
 const { getCurrentPageKey } = window.utils.url;
 const { addStyles } = window.utils.style;
 const { initializeTOC } = window.utils.toc;
+const { createTitleForm } = window.utils.form;
 
 const initializePage = async () => {
   addStyles();
@@ -21,48 +22,7 @@ const initializePage = async () => {
     const chatId = `chat-${index}`;
     chatElement.setAttribute('data-chat-id', chatId);
 
-    const form = document.createElement('form');
-    form.classList.add('chat-title-form');
-
-    let parentMaxWidth = '100%';
-
-    if (window.matchMedia('(min-width: 1280px)').matches) {
-      parentMaxWidth = '48rem';
-    } else if (window.matchMedia('(min-width: 1024px)').matches) {
-      parentMaxWidth = '40rem';
-    } else if (window.matchMedia('(min-width: 768px)').matches) {
-      parentMaxWidth = '48rem';
-    }
-
-    form.style.width = '100%';
-    form.style.maxWidth = parentMaxWidth;
-    form.style.margin = '0 auto';
-    form.style.boxSizing = 'border-box';
-    form.style.padding = '0 1rem';
-
-    const titleInput = document.createElement('input');
-    titleInput.type = 'text';
-    titleInput.placeholder = '대화 제목을 입력하세요';
-    titleInput.classList.add('chat-title-input');
-    titleInput.style.width = '100%';
-    titleInput.style.padding = '5px';
-    titleInput.style.marginBottom = '10px';
-    titleInput.style.border = '1px solid #ccc';
-    titleInput.style.borderRadius = '4px';
-
-    titleInput.style.color = 'black';
-    titleInput.addEventListener('focus', () => {
-      titleInput.placeholder = '';
-    });
-
-    titleInput.addEventListener('blur', () => {
-      if (!titleInput.value) {
-        titleInput.placeholder = '대화 제목을 입력하세요';
-      }
-    });
-
-    form.appendChild(titleInput);
-    form.setAttribute('data-input', 'true');
+    const { form, titleInput } = createTitleForm(chatId);
     chatElement.insertAdjacentElement('beforebegin', form);
 
     const pageData = await getChromeStorage(getCurrentPageKey());
@@ -83,7 +43,6 @@ const initializePage = async () => {
     );
   });
 
-  // TOC 초기화 부분 수정
   if (hasNewElements) {
     await initializeTOC();
   }
