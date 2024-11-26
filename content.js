@@ -1,8 +1,8 @@
 const { getChromeStorage } = window.utils.chrome;
 const { getCurrentPageKey } = window.utils.url;
 const { addStyles } = window.utils.style;
+const { handleTitleSubmit, handleTitleBlur } = window.utils.events;
 
-/* global chrome */
 const createTOC = () => {
   const existingTOC = document.getElementById('toc-container');
   if (existingTOC) {
@@ -129,57 +129,13 @@ const initializePage = async () => {
       titleInput.value = pageData[chatId];
     }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const newTitle = titleInput.value;
-      if (newTitle.trim()) {
-        const pageData = await getChromeStorage(getCurrentPageKey());
-        pageData[chatId] = newTitle;
+    form.addEventListener('submit', (e) =>
+      handleTitleSubmit(e, { titleInput, chatId, chatElement }),
+    );
 
-        try {
-          await new Promise((resolve) => {
-            chrome.storage.sync.set(
-              { [getCurrentPageKey()]: pageData },
-              resolve,
-            );
-          });
-          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
-          if (tocEntry) {
-            tocEntry.innerText = newTitle;
-          } else {
-            addTocEntry(chatId, newTitle, chatElement);
-          }
-        } catch (error) {
-          console.warn('Failed to save to chrome storage:', error);
-        }
-      }
-    });
-
-    // blur 이벤트 핸들러도 동일하게 수정
-    titleInput.addEventListener('blur', async () => {
-      const newTitle = titleInput.value;
-      if (newTitle.trim()) {
-        const blurPageData = await getChromeStorage(getCurrentPageKey());
-        blurPageData[chatId] = newTitle;
-
-        try {
-          await new Promise((resolve) => {
-            chrome.storage.sync.set(
-              { [getCurrentPageKey()]: blurPageData },
-              resolve,
-            );
-          });
-          const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
-          if (tocEntry) {
-            tocEntry.innerText = newTitle;
-          } else {
-            addTocEntry(chatId, newTitle, chatElement);
-          }
-        } catch (error) {
-          console.warn('Failed to save to chrome storage:', error);
-        }
-      }
-    });
+    titleInput.addEventListener('blur', () =>
+      handleTitleBlur({ titleInput, chatId, chatElement }),
+    );
   });
 
   // TOC 초기화 부분도 수정

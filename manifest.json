@@ -18,6 +18,7 @@
         "utils/chromeStorage.js",
         "utils/urlHelper.js",
         "utils/styleHelper.js",
+        "utils/eventHandlers.js",
         "content.js"
       ],
       "run_at": "document_idle"
