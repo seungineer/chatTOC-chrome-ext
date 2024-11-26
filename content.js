@@ -1,3 +1,7 @@
+const { getChromeStorage } = window.utils.chrome;
+const { getCurrentPageKey } = window.utils.url;
+const { addStyles } = window.utils.style;
+
 /* global chrome */
 const createTOC = () => {
   const existingTOC = document.getElementById('toc-container');
@@ -15,29 +19,6 @@ const createTOC = () => {
   tocTitle.innerText = 'Table of Contents';
   tocTitle.classList.add('toc-title');
   tocContainer.appendChild(tocTitle);
-};
-
-const getChromeStorage = async (key) => {
-  try {
-    return new Promise((resolve) => {
-      chrome.storage.sync.get(key, (result) => {
-        resolve(result[key] || {});
-      });
-    });
-  } catch (error) {
-    console.warn('Chrome storage access failed:', error);
-    return {};
-  }
-};
-
-const addStyles = () => {
-  const style = document.createElement('style');
-  style.textContent = `
-    .mx-auto.flex.flex-1.gap-4.text-base.md\\:gap-5.lg\\:gap-6.md\\:max-w-3xl.lg\\:max-w-\\[40rem\\].xl\\:max-w-\\[48rem\\] {
-      scroll-margin-top: 120px;
-    }
-  `;
-  document.head.appendChild(style);
 };
 
 const initializePage = async () => {
@@ -88,12 +69,6 @@ const initializePage = async () => {
     } else {
       tocContainer.appendChild(tocEntry);
     }
-  };
-  // NOTE - 현재 대화방의 고유 키 값 반환
-  const getCurrentPageKey = () => {
-    const url = window.location.pathname;
-    const match = url.match(/\/c\/([^/]+)/);
-    return match ? match[1] : 'default';
   };
 
   chatElements.forEach(async (chatElement, index) => {

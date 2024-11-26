@@ -14,12 +14,21 @@
         "https://chatgpt.com/*"
       ],
       "css": ["styles.css"],
-      "js": ["content.js"],
+      "js": [
+        "utils/chromeStorage.js",
+        "utils/urlHelper.js",
+        "utils/styleHelper.js",
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],
   "action": {
     "default_popup": "popup.html"
   },
-  "host_permissions": ["https://chat.openai.com/*"]
+  "host_permissions": ["https://chat.openai.com/*"],
+  "web_accessible_resources": [{
+    "resources": ["utils/*.js"],
+    "matches": ["<all_urls>"]
+  }]
 }
