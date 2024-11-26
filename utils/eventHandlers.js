@@ -1,13 +1,6 @@
 /* global chrome */
 if (!window.utils) window.utils = {};
 if (!window.utils.events) {
-  const updateTocEntry = (chatId, newTitle, chatElement) => {
-    const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
-    if (tocEntry) {
-      tocEntry.innerText = newTitle;
-    }
-  };
-
   const handleTitleSubmit = async (e, { titleInput, chatId, chatElement }) => {
     e.preventDefault();
     const newTitle = titleInput.value;
@@ -25,7 +18,11 @@ if (!window.utils.events) {
           resolve,
         );
       });
-      updateTocEntry(chatId, newTitle, chatElement);
+
+      // TOC 모듈을 통해 항목 추가/업데이트
+      if (window.utils.toc && window.utils.toc.addTocEntry) {
+        window.utils.toc.addTocEntry(chatId, newTitle, chatElement);
+      }
     } catch (error) {
       console.warn('Failed to save to chrome storage:', error);
     }
@@ -47,7 +44,11 @@ if (!window.utils.events) {
           resolve,
         );
       });
-      updateTocEntry(chatId, newTitle, chatElement);
+
+      // TOC 모듈을 통해 항목 추가/업데이트
+      if (window.utils.toc && window.utils.toc.addTocEntry) {
+        window.utils.toc.addTocEntry(chatId, newTitle, chatElement);
+      }
     } catch (error) {
       console.warn('Failed to save to chrome storage:', error);
     }

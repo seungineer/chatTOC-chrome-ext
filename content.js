@@ -1,25 +1,7 @@
 const { getChromeStorage } = window.utils.chrome;
 const { getCurrentPageKey } = window.utils.url;
 const { addStyles } = window.utils.style;
-const { handleTitleSubmit, handleTitleBlur } = window.utils.events;
-
-const createTOC = () => {
-  const existingTOC = document.getElementById('toc-container');
-  if (existingTOC) {
-    existingTOC.remove();
-  }
-
-  const tocContainer = document.createElement('div');
-  tocContainer.id = 'toc-container';
-  tocContainer.setAttribute('data-toc', 'true');
-
-  document.body.appendChild(tocContainer);
-
-  const tocTitle = document.createElement('div');
-  tocTitle.innerText = 'Table of Contents';
-  tocTitle.classList.add('toc-title');
-  tocContainer.appendChild(tocTitle);
-};
+const { initializeTOC } = window.utils.toc;
 
 const initializePage = async () => {
   addStyles();
@@ -29,47 +11,6 @@ const initializePage = async () => {
   );
 
   let hasNewElements = false;
-
-  const addTocEntry = (chatId, title, chatElement) => {
-    const tocContainer = document.getElementById('toc-container');
-    if (!tocContainer) return;
-
-    const existingEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
-    if (existingEntry) {
-      existingEntry.innerText = title;
-      return;
-    }
-
-    const tocEntry = document.createElement('div');
-    tocEntry.innerText = title;
-    tocEntry.classList.add('toc-entry');
-    tocEntry.setAttribute('data-toc-id', chatId);
-
-    tocEntry.addEventListener('click', () => {
-      chatElement.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-      });
-    });
-
-    const existingEntries = Array.from(tocContainer.children).filter((child) =>
-      child.classList.contains('toc-entry'),
-    );
-
-    const currentNumber = parseInt(chatId.split('-')[1], 10);
-
-    const insertPosition = existingEntries.find((entry) => {
-      const entryId = entry.getAttribute('data-toc-id');
-      const entryNumber = parseInt(entryId.split('-')[1], 10);
-      return entryNumber > currentNumber;
-    });
-
-    if (insertPosition) {
-      tocContainer.insertBefore(tocEntry, insertPosition);
-    } else {
-      tocContainer.appendChild(tocEntry);
-    }
-  };
 
   chatElements.forEach(async (chatElement, index) => {
     if (chatElement.hasAttribute('data-chat-id')) {
@@ -130,25 +71,21 @@ const initializePage = async () => {
     }
 
     form.addEventListener('submit', (e) =>
-      handleTitleSubmit(e, { titleInput, chatId, chatElement }),
+      window.utils.events.handleTitleSubmit(e, {
+        titleInput,
+        chatId,
+        chatElement,
+      }),
     );
 
     titleInput.addEventListener('blur', () =>
-      handleTitleBlur({ titleInput, chatId, chatElement }),
+      window.utils.events.handleTitleBlur({ titleInput, chatId, chatElement }),
     );
   });
 
-  // TOC 초기화 부분도 수정
+  // TOC 초기화 부분 수정
   if (hasNewElements) {
-    createTOC();
-    const pageData = await getChromeStorage(getCurrentPageKey());
-
-    chatElements.forEach((chatElement, index) => {
-      const chatId = `chat-${index}`;
-      if (pageData[chatId]) {
-        addTocEntry(chatId, pageData[chatId], chatElement);
-      }
-    });
+    await initializeTOC();
   }
 };
 

@@ -19,6 +19,7 @@
         "utils/urlHelper.js",
         "utils/styleHelper.js",
         "utils/eventHandlers.js",
+        "utils/tocHelper.js",
         "content.js"
       ],
       "run_at": "document_idle"
