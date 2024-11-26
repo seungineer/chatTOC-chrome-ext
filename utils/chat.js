@@ -39,9 +39,9 @@ if (!window.utils.chat) {
     );
 
     const results = await Promise.all(
-      Array.from(chatElements).map((element, index) =>
-        processChatElement(element, index),
-      ),
+      Array.from(chatElements)
+        .slice(0, -1)
+        .map((element, index) => processChatElement(element, index)),
     );
 
     return results.some((result) => result);
