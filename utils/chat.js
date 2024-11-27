@@ -40,7 +40,7 @@ if (!window.utils.chat) {
 
     const results = await Promise.all(
       Array.from(chatElements)
-        .slice(0, -1)
+        .slice(0, -1) // 마지막 요소는 prompt 입력창이므로 제외
         .map((element, index) => processChatElement(element, index)),
     );
 
