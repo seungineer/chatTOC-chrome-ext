@@ -36,9 +36,31 @@ if (!window.utils.toc) {
     tocEntry.setAttribute('data-toc-id', chatId);
 
     tocEntry.addEventListener('click', () => {
-      chatElement.scrollIntoView({
+      const scrollContainer = document.querySelector(
+        '[class*="react-scroll-to-bottom"]',
+      );
+      if (!scrollContainer) return;
+
+      const innerScrollContainer = scrollContainer.querySelector(
+        '[class*="react-scroll-to-bottom--css-"]',
+      );
+
+      if (!innerScrollContainer) {
+        console.log('내부 스크롤 컨테이너를 찾을 수 없습니다');
+        return;
+      }
+
+      let targetElement = chatElement;
+      let offsetTop = 0;
+
+      while (targetElement && targetElement !== innerScrollContainer) {
+        offsetTop += targetElement.offsetTop - 20; // Header 높이 20px
+        targetElement = targetElement.offsetParent;
+      }
+
+      innerScrollContainer.scrollTo({
+        top: offsetTop,
         behavior: 'smooth',
-        block: 'start',
       });
     });
 
