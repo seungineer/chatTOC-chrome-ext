@@ -17,7 +17,6 @@
       "js": [
         "utils/chromeStorage.js",
         "utils/urlHelper.js",
-        "utils/styleHelper.js",
         "utils/eventHandlers.js",
         "utils/tocHelper.js",
         "utils/form.js",

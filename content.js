@@ -1,10 +1,7 @@
-const { addStyles } = window.utils.style;
 const { initializeTOC } = window.utils.toc;
 const { initializeChatElements } = window.utils.chat;
 
 const initializePage = async () => {
-  addStyles();
-
   const hasNewElements = await initializeChatElements();
 
   if (hasNewElements) {
