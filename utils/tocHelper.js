@@ -20,6 +20,54 @@ if (!window.utils.toc) {
     return tocContainer;
   };
 
+  const handleTocEntryClick = (chatElement) => {
+    const scrollContainer = document.querySelector(
+      '[class*="react-scroll-to-bottom"]',
+    );
+    if (!scrollContainer) return;
+
+    const innerScrollContainer = scrollContainer.querySelector(
+      '[class*="react-scroll-to-bottom--css-"]',
+    );
+    if (!innerScrollContainer) {
+      console.log('내부 스크롤 컨테이너를 찾을 수 없습니다');
+      return;
+    }
+
+    let targetElement = chatElement;
+    let offsetTop = 0;
+
+    while (targetElement && targetElement !== innerScrollContainer) {
+      offsetTop += targetElement.offsetTop - 20; // Header 높이 20px
+      targetElement = targetElement.offsetParent;
+    }
+
+    innerScrollContainer.scrollTo({
+      top: offsetTop,
+      behavior: 'smooth',
+    });
+  };
+
+  const createTocEntry = (chatId, title) => {
+    const tocEntry = document.createElement('div');
+    tocEntry.innerText = title;
+    tocEntry.classList.add('toc-entry');
+    tocEntry.setAttribute('data-toc-id', chatId);
+    return tocEntry;
+  };
+
+  const findInsertPosition = (tocContainer, currentNumber) => {
+    const existingEntries = Array.from(tocContainer.children).filter((child) =>
+      child.classList.contains('toc-entry'),
+    );
+
+    return existingEntries.find((entry) => {
+      const entryId = entry.getAttribute('data-toc-id');
+      const entryNumber = parseInt(entryId.split('-')[1], 10);
+      return entryNumber > currentNumber;
+    });
+  };
+
   const addTocEntry = (chatId, title, chatElement) => {
     const tocContainer = document.getElementById('toc-container');
     if (!tocContainer) return;
@@ -30,50 +78,11 @@ if (!window.utils.toc) {
       return;
     }
 
-    const tocEntry = document.createElement('div');
-    tocEntry.innerText = title;
-    tocEntry.classList.add('toc-entry');
-    tocEntry.setAttribute('data-toc-id', chatId);
-
-    tocEntry.addEventListener('click', () => {
-      const scrollContainer = document.querySelector(
-        '[class*="react-scroll-to-bottom"]',
-      );
-      if (!scrollContainer) return;
-
-      const innerScrollContainer = scrollContainer.querySelector(
-        '[class*="react-scroll-to-bottom--css-"]',
-      );
-
-      if (!innerScrollContainer) {
-        console.log('내부 스크롤 컨테이너를 찾을 수 없습니다');
-        return;
-      }
-
-      let targetElement = chatElement;
-      let offsetTop = 0;
-
-      while (targetElement && targetElement !== innerScrollContainer) {
-        offsetTop += targetElement.offsetTop - 20; // Header 높이 20px
-        targetElement = targetElement.offsetParent;
-      }
-
-      innerScrollContainer.scrollTo({
-        top: offsetTop,
-        behavior: 'smooth',
-      });
-    });
-
-    const existingEntries = Array.from(tocContainer.children).filter((child) =>
-      child.classList.contains('toc-entry'),
-    );
+    const tocEntry = createTocEntry(chatId, title);
+    tocEntry.addEventListener('click', () => handleTocEntryClick(chatElement));
 
     const currentNumber = parseInt(chatId.split('-')[1], 10);
-    const insertPosition = existingEntries.find((entry) => {
-      const entryId = entry.getAttribute('data-toc-id');
-      const entryNumber = parseInt(entryId.split('-')[1], 10);
-      return entryNumber > currentNumber;
-    });
+    const insertPosition = findInsertPosition(tocContainer, currentNumber);
 
     if (insertPosition) {
       tocContainer.insertBefore(tocEntry, insertPosition);
