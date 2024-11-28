@@ -26,12 +26,7 @@ if (!window.utils.form) {
     titleInput.placeholder = '대화 제목을 입력하세요';
     titleInput.classList.add('chat-title-input');
     titleInput.style.cssText = `
-      width: 100%;
-      padding: 5px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      color: black;
+      display: block;
     `;
 
     titleInput.addEventListener('focus', () => {
