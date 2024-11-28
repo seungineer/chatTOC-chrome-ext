@@ -1,3 +1,4 @@
+/* global chrome */
 if (!window.utils) window.utils = {};
 if (!window.utils.toc) {
   const createTOC = () => {
@@ -50,15 +51,57 @@ if (!window.utils.toc) {
 
   const createTocEntry = (chatId, title) => {
     const tocEntry = document.createElement('div');
-    tocEntry.innerText = title;
-    tocEntry.classList.add('toc-entry');
+    tocEntry.classList.add('toc-entry-container');
+
+    const titleSpan = document.createElement('span');
+    titleSpan.innerText = title;
+    titleSpan.classList.add('toc-entry');
+
+    const deleteButton = document.createElement('button');
+    deleteButton.innerHTML = '×';
+    deleteButton.classList.add('toc-delete-button');
+
+    deleteButton.addEventListener('click', async (e) => {
+      e.stopPropagation();
+
+      const pageData = await window.utils.chrome.getChromeStorage(
+        window.utils.url.getCurrentPageKey(),
+      );
+      delete pageData[chatId];
+
+      try {
+        await new Promise((resolve) => {
+          chrome.storage.sync.set(
+            { [window.utils.url.getCurrentPageKey()]: pageData },
+            resolve,
+          );
+        });
+
+        const titleInput = document.querySelector(
+          `input[data-chat-id="${chatId}"]`,
+        );
+        if (titleInput) {
+          titleInput.value = '';
+          titleInput.blur();
+          titleInput.dispatchEvent(new Event('blur'));
+        }
+
+        tocEntry.remove();
+      } catch (error) {
+        console.warn('Failed to delete title:', error);
+      }
+    });
+
+    tocEntry.appendChild(titleSpan);
+    tocEntry.appendChild(deleteButton);
     tocEntry.setAttribute('data-toc-id', chatId);
+
     return tocEntry;
   };
 
   const findInsertPosition = (tocContainer, currentNumber) => {
     const existingEntries = Array.from(tocContainer.children).filter((child) =>
-      child.classList.contains('toc-entry'),
+      child.classList.contains('toc-entry-container'),
     );
 
     return existingEntries.find((entry) => {
@@ -74,8 +117,7 @@ if (!window.utils.toc) {
 
     const existingEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
     if (existingEntry) {
-      existingEntry.innerText = title;
-      return;
+      existingEntry.remove();
     }
 
     const tocEntry = createTocEntry(chatId, title);

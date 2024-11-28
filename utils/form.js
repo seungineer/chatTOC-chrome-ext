@@ -3,6 +3,7 @@ if (!window.utils.form) {
   const createTitleForm = (chatId) => {
     const form = document.createElement('form');
     form.classList.add('chat-title-form');
+    form.setAttribute('data-chat-id', chatId);
 
     let parentMaxWidth = '100%';
     if (window.matchMedia('(min-width: 1280px)').matches) {
@@ -25,6 +26,7 @@ if (!window.utils.form) {
     titleInput.type = 'text';
     titleInput.placeholder = '대화 제목을 입력하세요';
     titleInput.classList.add('chat-title-input');
+    titleInput.setAttribute('data-chat-id', chatId);
     titleInput.style.cssText = `
       display: block;
     `;
