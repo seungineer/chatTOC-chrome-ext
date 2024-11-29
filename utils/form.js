@@ -1,3 +1,4 @@
+/* global chrome */
 if (!window.utils) window.utils = {};
 if (!window.utils.form) {
   const createTitleForm = (chatId) => {
@@ -19,7 +20,10 @@ if (!window.utils.form) {
       max-width: ${parentMaxWidth};
       margin: 0 auto;
       box-sizing: border-box;
-      padding: 0 1rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     `;
 
     const titleInput = document.createElement('input');
@@ -28,23 +32,66 @@ if (!window.utils.form) {
     titleInput.classList.add('chat-title-input');
     titleInput.setAttribute('data-chat-id', chatId);
     titleInput.style.cssText = `
-      display: block;
+      display: none;
+      margin: 0;
+      vertical-align: middle;
+      flex: 1;
     `;
 
     titleInput.addEventListener('focus', () => {
-      titleInput.placeholder = '';
+      titleInput.placeholder = '대화 제목을 입력하세요';
     });
 
     titleInput.addEventListener('blur', () => {
       if (!titleInput.value) {
+        titleInput.style.display = 'none';
         titleInput.placeholder = '대화 제목을 입력하세요';
       }
     });
 
-    form.appendChild(titleInput);
-    form.setAttribute('data-input', 'true');
+    const bookmarkImg = document.createElement('img');
+    bookmarkImg.src = chrome.runtime.getURL('assets/bookmark.png');
+    bookmarkImg.classList.add('chat-bookmark');
+    bookmarkImg.style.cssText = `
+      width: 36px;
+      height: 36px;
+      cursor: pointer;
+      transition: transform 300ms ease;
+      vertical-align: middle;
+      margin: 0;
+      padding: 0;
+    `;
 
-    return { form, titleInput };
+    bookmarkImg.addEventListener('mouseover', () => {
+      if (!titleInput.value && titleInput.style.display === 'none') {
+        bookmarkImg.style.transform = 'rotate(90deg)';
+      }
+    });
+
+    bookmarkImg.addEventListener('mouseout', () => {
+      if (!titleInput.value && titleInput.style.display === 'none') {
+        bookmarkImg.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    bookmarkImg.addEventListener('click', () => {
+      titleInput.style.display = 'inline-block';
+      titleInput.focus();
+      bookmarkImg.style.transform = 'rotate(90deg)';
+    });
+
+    titleInput.addEventListener('blur', () => {
+      if (!titleInput.value) {
+        titleInput.style.display = 'none';
+        titleInput.placeholder = '대화 제목을 입력하세요';
+        bookmarkImg.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    form.appendChild(bookmarkImg);
+    form.appendChild(titleInput);
+
+    return { form, titleInput, bookmarkImg };
   };
 
   window.utils.form = {

@@ -31,7 +31,10 @@
   },
   "host_permissions": ["https://chat.openai.com/*"],
   "web_accessible_resources": [{
-    "resources": ["utils/*.js"],
+    "resources": [
+      "utils/*.js",
+      "assets/*"
+    ],
     "matches": ["<all_urls>"]
   }]
 }
