@@ -43,12 +43,14 @@ const setupObserver = () => {
 };
 
 const updateAllForms = (enabled) => {
-  const titleInputs = document.querySelectorAll('input.chat-title-input');
-  titleInputs.forEach((input) => {
-    input.setAttribute(
-      'style',
-      enabled ? 'display: block' : 'display: none !important',
-    );
+  const forms = document.querySelectorAll('form.chat-title-form');
+  forms.forEach((form) => {
+    form.style.display = enabled ? 'flex' : 'none';
+
+    if (enabled) {
+      const input = form.querySelector('input.chat-title-input');
+      input.style.display = input.value ? 'inline-block' : 'none';
+    }
   });
 };
 

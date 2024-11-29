@@ -70,6 +70,10 @@ if (!window.utils.form) {
       if (!titleInput.value) {
         titleInput.style.display = 'none';
         titleInput.placeholder = '대화 제목을 입력하세요';
+        bookmarkImg.style.transform = 'rotate(0deg)';
+      } else {
+        titleInput.style.display = 'inline-block';
+        bookmarkImg.style.transform = 'rotate(90deg)';
       }
     });
 
@@ -89,14 +93,6 @@ if (!window.utils.form) {
       titleInput.style.display = 'inline-block';
       titleInput.focus();
       bookmarkImg.style.transform = 'rotate(90deg)';
-    });
-
-    titleInput.addEventListener('blur', () => {
-      if (!titleInput.value) {
-        titleInput.style.display = 'none';
-        titleInput.placeholder = '대화 제목을 입력하세요';
-        bookmarkImg.style.transform = 'rotate(0deg)';
-      }
     });
 
     form.appendChild(bookmarkImg);
