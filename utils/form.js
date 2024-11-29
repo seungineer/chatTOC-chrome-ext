@@ -53,8 +53,8 @@ if (!window.utils.form) {
     bookmarkImg.src = chrome.runtime.getURL('assets/bookmark.png');
     bookmarkImg.classList.add('chat-bookmark');
     bookmarkImg.style.cssText = `
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       cursor: pointer;
       transition: transform 300ms ease;
       vertical-align: middle;
