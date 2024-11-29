@@ -16,6 +16,7 @@ if (!window.utils.chat) {
     );
     if (pageData[chatId]) {
       titleInput.value = pageData[chatId];
+      form.updateVisibility();
     }
 
     form.addEventListener('submit', (e) =>

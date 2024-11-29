@@ -38,17 +38,6 @@ if (!window.utils.form) {
       flex: 1;
     `;
 
-    titleInput.addEventListener('focus', () => {
-      titleInput.placeholder = '대화 제목을 입력하세요';
-    });
-
-    titleInput.addEventListener('blur', () => {
-      if (!titleInput.value) {
-        titleInput.style.display = 'none';
-        titleInput.placeholder = '대화 제목을 입력하세요';
-      }
-    });
-
     const bookmarkImg = document.createElement('img');
     bookmarkImg.src = chrome.runtime.getURL('assets/bookmark.png');
     bookmarkImg.classList.add('chat-bookmark');
@@ -61,6 +50,28 @@ if (!window.utils.form) {
       margin: 0;
       padding: 0;
     `;
+
+    const updateTitleInputVisibility = () => {
+      requestAnimationFrame(() => {
+        if (titleInput.value) {
+          titleInput.style.display = 'inline-block';
+          bookmarkImg.style.transform = 'rotate(90deg)';
+        }
+      });
+    };
+
+    form.updateVisibility = updateTitleInputVisibility;
+
+    titleInput.addEventListener('focus', () => {
+      titleInput.placeholder = '대화 제목을 입력하세요';
+    });
+
+    titleInput.addEventListener('blur', () => {
+      if (!titleInput.value) {
+        titleInput.style.display = 'none';
+        titleInput.placeholder = '대화 제목을 입력하세요';
+      }
+    });
 
     bookmarkImg.addEventListener('mouseover', () => {
       if (!titleInput.value && titleInput.style.display === 'none') {
