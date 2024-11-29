@@ -21,7 +21,7 @@ if (!window.utils.toc) {
     return tocContainer;
   };
 
-  const handleTocEntryClick = (chatElement) => {
+  const handleTocEntryClick = (chatId) => {
     const scrollContainer = document.querySelector(
       '[class*="react-scroll-to-bottom"]',
     );
@@ -35,11 +35,14 @@ if (!window.utils.toc) {
       return;
     }
 
+    const chatElement = document.querySelector(`[data-chat-id="${chatId}"]`);
+    if (!chatElement) return;
+
     let targetElement = chatElement;
     let offsetTop = 0;
 
     while (targetElement && targetElement !== innerScrollContainer) {
-      offsetTop += targetElement.offsetTop - 20; // Header 높이 20px
+      offsetTop += targetElement.offsetTop - 10; // Header 높이 10px
       targetElement = targetElement.offsetParent;
     }
 
@@ -121,7 +124,7 @@ if (!window.utils.toc) {
     }
 
     const tocEntry = createTocEntry(chatId, title);
-    tocEntry.addEventListener('click', () => handleTocEntryClick(chatElement));
+    tocEntry.addEventListener('click', () => handleTocEntryClick(chatId));
 
     const currentNumber = parseInt(chatId.split('-')[1], 10);
     const insertPosition = findInsertPosition(tocContainer, currentNumber);
