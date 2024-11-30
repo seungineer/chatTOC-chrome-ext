@@ -11,6 +11,17 @@ if (!window.utils.chat) {
     const { form, titleInput } = window.utils.form.createTitleForm(chatId);
     chatElement.insertAdjacentElement('beforebegin', form);
 
+    const getByteLength = (str) => {
+      return new TextEncoder().encode(str).length;
+    };
+
+    titleInput.addEventListener('input', (e) => {
+      const byteLength = getByteLength(e.target.value);
+      if (byteLength > 100) {
+        e.target.value = e.target.value.slice(0, -1);
+      }
+    });
+
     const pageData = await window.utils.chrome.getChromeStorage(
       window.utils.url.getCurrentPageKey(),
     );
@@ -19,13 +30,17 @@ if (!window.utils.chat) {
       form.updateVisibility();
     }
 
-    form.addEventListener('submit', (e) =>
+    form.addEventListener('submit', (e) => {
+      const byteLength = getByteLength(titleInput.value);
+      if (byteLength > 100) {
+        titleInput.value = titleInput.value.slice(0, Math.floor(100 / 2));
+      }
       window.utils.events.handleTitleSubmit(e, {
         titleInput,
         chatId,
         chatElement,
-      }),
-    );
+      });
+    });
 
     titleInput.addEventListener('blur', async () => {
       if (!titleInput.value.trim()) {
