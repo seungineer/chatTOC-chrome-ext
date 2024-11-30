@@ -27,9 +27,16 @@ if (!window.utils.chat) {
       }),
     );
 
-    titleInput.addEventListener('blur', () =>
-      window.utils.events.handleTitleBlur({ titleInput, chatId, chatElement }),
-    );
+    titleInput.addEventListener('blur', async () => {
+      if (!titleInput.value.trim()) {
+        const tocEntry = document.querySelector(`[data-toc-id="${chatId}"]`);
+        if (tocEntry) {
+          tocEntry.querySelector('.toc-delete-button').click();
+        }
+      }
+
+      window.utils.events.handleTitleBlur({ titleInput, chatId, chatElement });
+    });
 
     return true;
   };
