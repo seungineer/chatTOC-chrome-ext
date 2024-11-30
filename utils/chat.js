@@ -44,6 +44,7 @@ if (!window.utils.chat) {
         .slice(0, -1) // 마지막 요소는 prompt 입력창이므로 제외
         .map((element, index) => {
           if (index % 2 === 1) {
+            // 답변 요소에만 입력창 추가
             return processChatElement(element, Math.floor(index / 2));
           }
           return false;
