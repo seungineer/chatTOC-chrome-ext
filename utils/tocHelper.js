@@ -1,6 +1,45 @@
 /* global chrome */
 if (!window.utils) window.utils = {};
 if (!window.utils.toc) {
+  const setupResizeHandler = (tocContainer, resizeHandle) => {
+    let isResizing = false;
+    let startX;
+    let startY;
+    let startWidth;
+    let startHeight;
+
+    function handleMouseMove(e) {
+      if (!isResizing) return;
+
+      const newWidth = startWidth + (startX - e.clientX);
+      const newHeight = startHeight + (e.clientY - startY);
+
+      tocContainer.style.width = `${Math.max(200, newWidth)}px`;
+      tocContainer.style.height = `${Math.max(100, newHeight)}px`;
+
+      e.preventDefault();
+      document.body.style.userSelect = 'none';
+    }
+
+    function handleMouseUp() {
+      isResizing = false;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.userSelect = '';
+    }
+
+    resizeHandle.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startWidth = tocContainer.offsetWidth;
+      startHeight = tocContainer.offsetHeight;
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    });
+  };
+
   const createTOC = () => {
     const existingTOC = document.getElementById('toc-container');
     if (existingTOC) {
@@ -11,12 +50,18 @@ if (!window.utils.toc) {
     tocContainer.id = 'toc-container';
     tocContainer.setAttribute('data-toc', 'true');
 
+    const resizeHandle = document.createElement('div');
+    resizeHandle.classList.add('toc-resize-handle');
+    tocContainer.appendChild(resizeHandle);
+
     document.body.appendChild(tocContainer);
 
     const tocTitle = document.createElement('div');
     tocTitle.innerText = 'Table of Contents';
     tocTitle.classList.add('toc-title');
     tocContainer.appendChild(tocTitle);
+
+    setupResizeHandler(tocContainer, resizeHandle);
 
     return tocContainer;
   };
