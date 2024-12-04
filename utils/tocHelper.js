@@ -49,6 +49,7 @@ if (!window.utils.toc) {
     const tocContainer = document.createElement('div');
     tocContainer.id = 'toc-container';
     tocContainer.setAttribute('data-toc', 'true');
+    tocContainer.style.width = '200px';
 
     const resizeHandle = document.createElement('div');
     resizeHandle.classList.add('toc-resize-handle');
