@@ -26,6 +26,9 @@ if (!window.utils.toc) {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
       document.body.style.userSelect = '';
+
+      tocWidth = tocContainer.style.width;
+      tocHeight = tocContainer.style.height;
     }
 
     resizeHandle.addEventListener('mousedown', (e) => {
@@ -40,6 +43,9 @@ if (!window.utils.toc) {
     });
   };
 
+  let tocWidth = '200px';
+  let tocHeight = 'auto';
+
   const createTOC = () => {
     const existingTOC = document.getElementById('toc-container');
     if (existingTOC) {
@@ -49,7 +55,10 @@ if (!window.utils.toc) {
     const tocContainer = document.createElement('div');
     tocContainer.id = 'toc-container';
     tocContainer.setAttribute('data-toc', 'true');
-    tocContainer.style.width = '200px';
+
+    // 전역 변수에서 크기 불러오기
+    tocContainer.style.width = tocWidth;
+    tocContainer.style.height = tocHeight;
 
     const resizeHandle = document.createElement('div');
     resizeHandle.classList.add('toc-resize-handle');
