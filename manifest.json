@@ -1,16 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "ChatGPT TOC Manager",
+  "name": "chatTOC",
   "version": "1.0",
+  "description": "You can add a table of contents to the conversations on ChatGPT.",
   "permissions": [
-    "storage",
-    "scripting",
-    "activeTab"
+    "storage"
   ],
   "content_scripts": [
     {
       "matches": [
-        "https://chat.openai.com/*",
         "https://chatgpt.com/*"
       ],
       "css": ["styles.css"],
@@ -29,12 +27,16 @@
   "action": {
     "default_popup": "popup.html"
   },
-  "host_permissions": ["https://chat.openai.com/*"],
   "web_accessible_resources": [{
     "resources": [
-      "utils/*.js",
-      "assets/*"
+      "utils/chromeStorage.js",
+      "utils/urlHelper.js",
+      "utils/eventHandlers.js",
+      "utils/tocHelper.js",
+      "utils/form.js",
+      "utils/chat.js",
+      "assets/bookmark_colored.png"
     ],
-    "matches": ["<all_urls>"]
+    "matches": ["https://chatgpt.com/*"]
   }]
 }
