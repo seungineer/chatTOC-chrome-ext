@@ -1,39 +1,61 @@
 #toc-container {
   position: fixed;
-  top: 20px;
+  top: 60px;
   right: 20px;
-  padding: 15px;
-  background-color: #ffffff;
-  border: 1px solid #ccc;
+  padding-left: 15px;
+  padding-right: 10px;
+  border: 1px solid #e0e0e032;
   border-radius: 5px;
   max-height: 80vh;
   overflow-y: auto;
   z-index: 1000;
   min-width: 200px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   color: #000000;
+  background-color: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  isolation: isolate;
+}
+
+#toc-container .toc-entry,
+.toc-delete-button {
+  filter: invert(1) grayscale(1) contrast(9);
+}
+
+#toc-container .toc-title{
+  filter: invert(1) grayscale(1) contrast(9);
+  font-weight: bold;
 }
 
 #toc-container .toc-title {
-  font-weight: bold;
   margin-bottom: 10px;
   padding: 5px;
-  border-bottom: 1px solid #eee;
-  color: #000000;
+  border-bottom: 1px solid #fdfdfd;
+  color: #fdfdfd;
 }
 
 #toc-container .toc-entry {
-  cursor: pointer;
-  margin-bottom: 8px;
-  padding: 5px;
-  border-radius: 3px;
-  color: #000000;
+  cursor: pointer;  
+  margin-top: 8px;
+  color: #ffffff;
   font-size: 14px;
-  background-color: #ffffff;
 }
 
 #toc-container .toc-entry:hover {
-  background-color: #f0f0f0;
+  font-weight: 800;
+}
+
+#toc-container .toc-resize-handle {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  cursor: nw-resize;
+  background: #ffffff;
+  border-radius: 50%;
+  filter: invert(1) grayscale(1) contrast(9);
 }
 
 input.chat-title-input {
@@ -48,7 +70,6 @@ input.chat-title-input {
   .toc-entry-container {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 4px 8px;
     cursor: pointer;
   }
@@ -56,10 +77,10 @@ input.chat-title-input {
   .toc-delete-button {
     background: none;
     border: none;
-    color: #666;
+    color: #ffffff;
     font-size: 18px;
     cursor: pointer;
-    padding: 0 4px;
+    padding: 4px;
     margin-left: 8px;
   }
   
