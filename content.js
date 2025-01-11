@@ -1,6 +1,7 @@
 /* global chrome */
 const { initializeTOC } = window.utils.toc;
 const { initializeChatElements } = window.utils.chat;
+const { showUpdateNotification } = window.utils.updateNotification;
 
 let observer = null;
 
@@ -91,3 +92,5 @@ chrome.runtime.onMessage.addListener((message) => {
     toggleExtension(message.enabled);
   }
 });
+
+showUpdateNotification();
