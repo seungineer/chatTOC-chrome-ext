@@ -6,9 +6,11 @@ if (!window.utils.updateNotification) {
     notification.id = 'update-notification';
     notification.innerHTML = `
     <div class="notification-content">
-      <h1>chatTOC chrome extension updated 🎉</h1>
-      <p> ✔️ Check new features</p>
-      <p> ✔️ This popup will not show again</p>
+      <h1>chatTOC updated 🎉</h1>
+      <p> ✔️ Automatically add prompts to the TOC</p>
+      <p> ✔️ Set custom titles for the TOC</p>
+      <p> ❗ Click the extension icon to control the features</p>
+      <p> ❗ This message won’t appear again after being closed</p>
       <button id="close-notification">X</button>
     </div>
   `;

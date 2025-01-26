@@ -92,7 +92,7 @@ input.chat-title-input {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgb(255, 255, 255);
   backdrop-filter: blur(2px);
   border: 1px solid #4d4d4f;
   border-radius: 8px;
