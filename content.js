@@ -5,11 +5,12 @@ const { showUpdateNotification } = window.utils.updateNotification;
 const { toggleAutoTitle } = window.utils.autoTitle;
 let observer = null;
 
-const initializePage = async () => {
+const initializePage = async (autoTitleEnabled) => {
   const hasNewElements = await initializeChatElements();
-
   if (hasNewElements) {
-    await initializeTOC();
+    await toggleAutoTitle(autoTitleEnabled).then(async () => {
+      await initializeTOC(autoTitleEnabled);
+    });
   }
 };
 
@@ -55,7 +56,7 @@ const updateAllForms = (enabled) => {
   });
 };
 
-const toggleExtension = (enabled) => {
+const toggleExtension = async (enabled, autoTitleEnabled) => {
   const tocContainer = document.getElementById('toc-container');
 
   if (!enabled) {
@@ -63,7 +64,7 @@ const toggleExtension = (enabled) => {
     if (tocContainer) {
       tocContainer.style.display = 'none';
     }
-    updateAllForms(false);
+    updateAllForms(!enabled);
     if (observer) {
       observer.disconnect();
       observer = null;
@@ -73,9 +74,11 @@ const toggleExtension = (enabled) => {
     if (tocContainer) {
       tocContainer.style.display = 'block';
     }
-    initializePage();
+    updateAllForms(enabled);
     setupObserver();
-    updateAllForms(true);
+    await initializePage(autoTitleEnabled).then(() => {
+      initializeTOC(autoTitleEnabled);
+    });
   }
 };
 
