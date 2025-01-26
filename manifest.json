@@ -19,6 +19,7 @@
       "css": ["styles.css"],
       "js": [
         "utils/updateNotification.js",
+        "utils/autoTitle.js",
         "utils/chromeStorage.js",
         "utils/urlHelper.js",
         "utils/eventHandlers.js",
@@ -38,6 +39,7 @@
   "web_accessible_resources": [{
     "resources": [
       "utils/updateNotification.js",
+      "utils/autoTitle.js",
       "utils/chromeStorage.js",
       "utils/urlHelper.js",
       "utils/eventHandlers.js",
