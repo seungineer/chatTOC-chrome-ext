@@ -14,12 +14,12 @@ const initializePage = async (autoTitleEnabled) => {
   }
 };
 
-const setupObserver = () => {
+const setupObserver = async () => {
   if (observer) {
     observer.disconnect();
   }
 
-  observer = new MutationObserver((mutations) => {
+  observer = new MutationObserver(async (mutations) => {
     const hasRelevantChanges = mutations.some((mutation) => {
       return Array.from(mutation.addedNodes).some((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
@@ -32,9 +32,18 @@ const setupObserver = () => {
         return false;
       });
     });
-
     if (hasRelevantChanges) {
-      initializePage();
+      try {
+        const { autoTitleEnabled: enabler } = await chrome.storage.local.get([
+          'autoTitleEnabled',
+        ]);
+        await initializePage(enabler);
+      } catch (error) {
+        console.error(
+          '로컬 스토리지에서 autoTitleEnabled 값을 가져오는데 실패했습니다:',
+          error,
+        );
+      }
     }
   });
 
@@ -130,4 +139,4 @@ chrome.runtime.onMessage.addListener(async (message) => {
   }
 });
 
-showUpdateNotification();
+// showUpdateNotification();
