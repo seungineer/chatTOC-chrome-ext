@@ -22,11 +22,5 @@ if (!window.utils.updateNotification) {
       });
   };
 
-  chrome.storage.local.get('showUpdatePopup', (data) => {
-    if (data.showUpdatePopup) {
-      showUpdateNotification();
-    }
-  });
-
   window.utils.updateNotification = { showUpdateNotification };
 }

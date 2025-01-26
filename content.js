@@ -125,6 +125,12 @@ const toggleExtension = async (enabled, autoTitleEnabled) => {
   } catch (error) {
     console.error('Initialization error:', error);
   }
+
+  chrome.storage.local.get('showUpdatePopup', (data) => {
+    if (data.showUpdatePopup) {
+      showUpdateNotification();
+    }
+  });
 })();
 
 chrome.runtime.onMessage.addListener(async (message) => {
@@ -138,5 +144,3 @@ chrome.runtime.onMessage.addListener(async (message) => {
     });
   }
 });
-
-// showUpdateNotification();
