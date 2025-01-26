@@ -97,7 +97,7 @@ const toggleExtension = async (enabled, autoTitleEnabled) => {
       = await chrome.storage.local.get(['enabled', 'autoTitleEnabled']);
 
     toggleExtension(enabled, autoTitleEnabled);
-
+    await chrome.storage.local.set({ enabled, autoTitleEnabled });
     await new Promise((resolve) => {
       const observer = new MutationObserver((mutations, obs) => {
         // 어떤 프롬프트든 렌더링된 후에 resolve
