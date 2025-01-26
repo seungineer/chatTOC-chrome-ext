@@ -87,3 +87,53 @@ input.chat-title-input {
   .toc-delete-button:hover {
     color: #ff4444;
   }
+
+#update-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: rgb(255, 255, 255);
+  backdrop-filter: blur(2px);
+  border: 1px solid #4d4d4f;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  width: 300px;
+  padding: 16px;
+}
+
+.notification-content {
+  text-align: left;
+  color: black;
+}
+
+.notification-content h1 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notification-content p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.notification-content button {
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  padding: 0;
+  filter: invert(1) grayscale(1) contrast(9);
+}

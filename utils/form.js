@@ -28,7 +28,8 @@ if (!window.utils.form) {
 
     const titleInput = document.createElement('input');
     titleInput.type = 'text';
-    titleInput.placeholder = '대화 제목을 입력하세요(최대 100 Bytes)';
+    titleInput.placeholder
+      = 'Enter your own custom chat title (up to 100 bytes)';
     titleInput.classList.add('chat-title-input');
     titleInput.setAttribute('data-chat-id', chatId);
     titleInput.style.cssText = `
@@ -69,13 +70,15 @@ if (!window.utils.form) {
     form.updateVisibility = updateTitleInputVisibility;
 
     titleInput.addEventListener('focus', () => {
-      titleInput.placeholder = '대화 제목을 입력하세요(최대 100 Bytes)';
+      titleInput.placeholder
+        = 'Enter your own custom chat title (up to 100 bytes)';
     });
 
     titleInput.addEventListener('blur', () => {
       if (!titleInput.value) {
         titleInput.style.display = 'none';
-        titleInput.placeholder = '대화 제목을 입력하세요(최대 100 Bytes)';
+        titleInput.placeholder
+          = 'Enter your own custom chat title (up to 100 bytes)';
         bookmarkImg.style.transform = 'rotate(0deg)';
       } else {
         titleInput.style.display = 'inline-block';

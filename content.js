@@ -1,23 +1,25 @@
 /* global chrome */
 const { initializeTOC } = window.utils.toc;
 const { initializeChatElements } = window.utils.chat;
-
+const { showUpdateNotification } = window.utils.updateNotification;
+const { toggleAutoTitle } = window.utils.autoTitle;
 let observer = null;
 
-const initializePage = async () => {
+const initializePage = async (autoTitleEnabled) => {
   const hasNewElements = await initializeChatElements();
-
   if (hasNewElements) {
-    await initializeTOC();
+    await toggleAutoTitle(autoTitleEnabled).then(async () => {
+      await initializeTOC(autoTitleEnabled);
+    });
   }
 };
 
-const setupObserver = () => {
+const setupObserver = async () => {
   if (observer) {
     observer.disconnect();
   }
 
-  observer = new MutationObserver((mutations) => {
+  observer = new MutationObserver(async (mutations) => {
     const hasRelevantChanges = mutations.some((mutation) => {
       return Array.from(mutation.addedNodes).some((node) => {
         if (node.nodeType === Node.ELEMENT_NODE) {
@@ -30,9 +32,18 @@ const setupObserver = () => {
         return false;
       });
     });
-
     if (hasRelevantChanges) {
-      initializePage();
+      try {
+        const { autoTitleEnabled: enabler } = await chrome.storage.local.get([
+          'autoTitleEnabled',
+        ]);
+        await initializePage(enabler);
+      } catch (error) {
+        console.error(
+          '로컬 스토리지에서 autoTitleEnabled 값을 가져오는데 실패했습니다:',
+          error,
+        );
+      }
     }
   });
 
@@ -54,7 +65,7 @@ const updateAllForms = (enabled) => {
   });
 };
 
-const toggleExtension = (enabled) => {
+const toggleExtension = async (enabled, autoTitleEnabled) => {
   const tocContainer = document.getElementById('toc-container');
 
   if (!enabled) {
@@ -62,7 +73,7 @@ const toggleExtension = (enabled) => {
     if (tocContainer) {
       tocContainer.style.display = 'none';
     }
-    updateAllForms(false);
+    updateAllForms(enabled);
     if (observer) {
       observer.disconnect();
       observer = null;
@@ -72,22 +83,64 @@ const toggleExtension = (enabled) => {
     if (tocContainer) {
       tocContainer.style.display = 'block';
     }
-    initializePage();
+    updateAllForms(enabled);
     setupObserver();
-    updateAllForms(true);
+    await initializePage(autoTitleEnabled).then(() => {
+      initializeTOC(autoTitleEnabled);
+    });
   }
 };
 
 (async () => {
-  await initializePage();
+  try {
+    const { enabled = true, autoTitleEnabled = true }
+      = await chrome.storage.local.get(['enabled', 'autoTitleEnabled']);
+
+    toggleExtension(enabled, autoTitleEnabled);
+    await chrome.storage.local.set({ enabled, autoTitleEnabled });
+    await new Promise((resolve) => {
+      const observer = new MutationObserver((mutations, obs) => {
+        // 어떤 프롬프트든 렌더링된 후에 resolve
+        const forms = document.querySelectorAll('.whitespace-pre-wrap');
+        if (forms.length > 0) {
+          obs.disconnect();
+          resolve();
+        }
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }).then(async () => {
+      const { enabled: enabler, autoTitleEnabled: autoTitle }
+        = await chrome.storage.local.get(['enabled', 'autoTitleEnabled']);
+      if (!enabler) {
+        return;
+      }
+      await toggleAutoTitle(autoTitle).then(async () => {
+        await initializeTOC(autoTitle);
+      });
+    });
+  } catch (error) {
+    console.error('Initialization error:', error);
+  }
+
+  chrome.storage.local.get('showUpdatePopup', (data) => {
+    if (data.showUpdatePopup) {
+      showUpdateNotification();
+    }
+  });
 })();
 
-chrome.storage.local.get('enabled', ({ enabled = true }) => {
-  toggleExtension(enabled);
-});
-
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === 'TOGGLE_EXTENSION') {
-    toggleExtension(message.enabled);
+    toggleExtension(message.enabled, message.autoTitleEnabled);
+    return;
+  }
+  if (message.type === 'TOGGLE_AUTO_TITLE') {
+    await toggleAutoTitle(message.autoTitleEnabled).then(async () => {
+      await initializeTOC(message.autoTitleEnabled);
+    });
   }
 });

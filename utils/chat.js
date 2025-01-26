@@ -49,9 +49,18 @@ if (!window.utils.chat) {
           tocEntry.querySelector('.toc-delete-button').click();
         }
       }
-
-      window.utils.events.handleTitleBlur({ titleInput, chatId, chatElement });
     });
+
+    return true;
+  };
+
+  const processInputElement = async (inputElement, index) => {
+    if (inputElement.hasAttribute('data-input-id')) {
+      return false;
+    }
+
+    const inputId = `input-${index}`;
+    inputElement.setAttribute('data-input-id', inputId);
 
     return true;
   };
@@ -62,15 +71,14 @@ if (!window.utils.chat) {
     );
 
     const results = await Promise.all(
-      Array.from(chatElements)
-        .slice(0, -1) // 마지막 요소는 prompt 입력창이므로 제외
-        .map((element, index) => {
-          if (index % 2 === 1) {
-            // 답변 요소에만 입력창 추가
-            return processChatElement(element, Math.floor(index / 2));
-          }
-          return false;
-        }),
+      Array.from(chatElements).map((element, index) => {
+        if (index % 2 === 1) {
+          // 답변 요소에 입력창 추가
+          return processChatElement(element, Math.floor(index / 2));
+        }
+        // 입력 요소에 'data-input-id' 추가
+        return processInputElement(element, Math.floor(index / 2));
+      }),
     );
 
     return results.some((result) => result);

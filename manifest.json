@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "chatTOC",
-  "version": "1.0",
+  "version": "1.1.0",
   "description": "You can add a table of contents to the conversations on ChatGPT.",
   "icons": {
     "16": "assets/icon16.png",
@@ -11,6 +11,9 @@
   "permissions": [
     "storage"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": [
@@ -18,6 +21,8 @@
       ],
       "css": ["styles.css"],
       "js": [
+        "utils/updateNotification.js",
+        "utils/autoTitle.js",
         "utils/chromeStorage.js",
         "utils/urlHelper.js",
         "utils/eventHandlers.js",
@@ -36,6 +41,8 @@
   },
   "web_accessible_resources": [{
     "resources": [
+      "utils/updateNotification.js",
+      "utils/autoTitle.js",
       "utils/chromeStorage.js",
       "utils/urlHelper.js",
       "utils/eventHandlers.js",
