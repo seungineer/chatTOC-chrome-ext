@@ -56,7 +56,6 @@ if (!window.utils.toc) {
     tocContainer.id = 'toc-container';
     tocContainer.setAttribute('data-toc', 'true');
 
-    // 전역 변수에서 크기 불러오기
     tocContainer.style.width = tocWidth;
     tocContainer.style.height = tocHeight;
 
@@ -86,7 +85,6 @@ if (!window.utils.toc) {
       '[class*="react-scroll-to-bottom--css-"]',
     );
     if (!innerScrollContainer) {
-      console.log('내부 스크롤 컨테이너를 찾을 수 없습니다');
       return;
     }
 
