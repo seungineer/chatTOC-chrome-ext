@@ -2,7 +2,7 @@
 const { initializeTOC } = window.utils.toc;
 const { initializeChatElements } = window.utils.chat;
 const { showUpdateNotification } = window.utils.updateNotification;
-
+const { toggleAutoTitle } = window.utils.autoTitle;
 let observer = null;
 
 const initializePage = async () => {
@@ -83,13 +83,15 @@ const toggleExtension = (enabled) => {
   await initializePage();
 })();
 
-chrome.storage.local.get('enabled', ({ enabled = true }) => {
-  toggleExtension(enabled);
-});
-
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener(async (message) => {
   if (message.type === 'TOGGLE_EXTENSION') {
-    toggleExtension(message.enabled);
+    toggleExtension(message.enabled, message.autoTitleEnabled);
+    return;
+  }
+  if (message.type === 'TOGGLE_AUTO_TITLE') {
+    await toggleAutoTitle(message.autoTitleEnabled).then(async () => {
+      await initializeTOC(message.autoTitleEnabled);
+    });
   }
 });
 
