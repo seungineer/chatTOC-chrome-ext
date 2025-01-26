@@ -192,20 +192,27 @@ if (!window.utils.toc) {
   };
 
   // TOC 초기화 함수 추가
-  const initializeTOC = async () => {
+  const initializeTOC = async (autoTitleEnabled) => {
     const tocContainer = createTOC();
     const pageData = await window.utils.chrome.getChromeStorage(
       window.utils.url.getCurrentPageKey(),
     );
 
-    const chatElements = document.querySelectorAll(
-      'div.mx-auto.flex.flex-1.gap-4.text-base.md\\:gap-5.lg\\:gap-6.md\\:max-w-3xl.lg\\:max-w-\\[40rem\\].xl\\:max-w-\\[48rem\\]',
-    );
-
+    const chatElements = document.querySelectorAll('[data-chat-id]');
     chatElements.forEach((chatElement, index) => {
       const chatId = `chat-${index}`;
       if (pageData[chatId]) {
+        // 페이지 데이터에 사용자 정의 타이틀이 있으면 추가
         addTocEntry(chatId, pageData[chatId], chatElement);
+        return;
+      }
+
+      if (!autoTitleEnabled) return;
+      const titleInput = document.querySelector(
+        `[data-chat-id="${chatId}"] input`,
+      );
+      if (titleInput) {
+        addTocEntry(chatId, titleInput.value, chatElement);
       }
     });
 
