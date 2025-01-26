@@ -73,7 +73,7 @@ const toggleExtension = async (enabled, autoTitleEnabled) => {
     if (tocContainer) {
       tocContainer.style.display = 'none';
     }
-    updateAllForms(!enabled);
+    updateAllForms(enabled);
     if (observer) {
       observer.disconnect();
       observer = null;
