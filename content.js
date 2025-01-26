@@ -83,7 +83,39 @@ const toggleExtension = async (enabled, autoTitleEnabled) => {
 };
 
 (async () => {
-  await initializePage();
+  try {
+    const { enabled = true, autoTitleEnabled = true }
+      = await chrome.storage.local.get(['enabled', 'autoTitleEnabled']);
+
+    toggleExtension(enabled, autoTitleEnabled);
+
+    await new Promise((resolve) => {
+      const observer = new MutationObserver((mutations, obs) => {
+        // 어떤 프롬프트든 렌더링된 후에 resolve
+        const forms = document.querySelectorAll('.whitespace-pre-wrap');
+        if (forms.length > 0) {
+          obs.disconnect();
+          resolve();
+        }
+      });
+
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    }).then(async () => {
+      const { enabled: enabler, autoTitleEnabled: autoTitle }
+        = await chrome.storage.local.get(['enabled', 'autoTitleEnabled']);
+      if (!enabler) {
+        return;
+      }
+      await toggleAutoTitle(autoTitle).then(async () => {
+        await initializeTOC(autoTitle);
+      });
+    });
+  } catch (error) {
+    console.error('Initialization error:', error);
+  }
 })();
 
 chrome.runtime.onMessage.addListener(async (message) => {
