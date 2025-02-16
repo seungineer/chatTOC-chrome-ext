@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "chatTOC",
+  "name": "Organize ChatGPT Conversations - chatTOC",
   "version": "1.1.0",
   "description": "You can add a table of contents to the conversations on ChatGPT.",
   "icons": {
