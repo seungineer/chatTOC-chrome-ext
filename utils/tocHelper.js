@@ -77,29 +77,18 @@ if (!window.utils.toc) {
 
   const handleTocEntryClick = (chatId) => {
     const scrollContainer = document.querySelector(
-      '[class*="react-scroll-to-bottom"]',
+      'div.flex.h-full.flex-col.overflow-y-auto',
     );
     if (!scrollContainer) return;
 
-    const innerScrollContainer = scrollContainer.querySelector(
-      '[class*="react-scroll-to-bottom--css-"]',
+    const chatElement = scrollContainer.querySelector(
+      `article form[data-chat-id="${chatId}"]`,
     );
-    if (!innerScrollContainer) {
-      return;
-    }
-
-    const chatElement = document.querySelector(`[data-chat-id="${chatId}"]`);
     if (!chatElement) return;
 
-    let targetElement = chatElement;
-    let offsetTop = 0;
+    const offsetTop = chatElement.offsetTop - 45;
 
-    while (targetElement && targetElement !== innerScrollContainer) {
-      offsetTop += targetElement.offsetTop - 10; // Header 높이 10px
-      targetElement = targetElement.offsetParent;
-    }
-
-    innerScrollContainer.scrollTo({
+    scrollContainer.scrollTo({
       top: offsetTop,
       behavior: 'smooth',
     });
