@@ -76,22 +76,108 @@ if (!window.utils.toc) {
   };
 
   const handleTocEntryClick = (chatId) => {
-    const scrollContainer = document.querySelector(
+    console.log('chatTOC: TOC 항목 클릭, chatId:', chatId);
+    
+    // 더 안정적인 스크롤 컨테이너 찾기
+    let scrollContainer = document.querySelector(
       'div.flex.h-full.flex-col.overflow-y-auto',
     );
-    if (!scrollContainer) return;
+    console.log('chatTOC: 기본 스크롤 컨테이너 선택자 결과:', !!scrollContainer);
+    
+    // 기본 선택자가 작동하지 않으면 fallback 시도
+    if (!scrollContainer) {
+      scrollContainer = document.querySelector('div[class*="overflow-y-auto"][class*="h-full"]');
+      console.log('chatTOC: overflow-y-auto 패턴으로 찾은 결과:', !!scrollContainer);
+    }
+    
+    if (!scrollContainer) {
+      scrollContainer = document.querySelector('main');
+      console.log('chatTOC: main 태그로 찾은 결과:', !!scrollContainer);
+    }
+    
+    if (!scrollContainer) {
+      scrollContainer = document.querySelector('div[role="main"]');
+      console.log('chatTOC: role="main"으로 찾은 결과:', !!scrollContainer);
+    }
+    
+    if (!scrollContainer) {
+      console.warn('chatTOC: 스크롤 컨테이너를 찾을 수 없습니다.');
+      return;
+    }
+    
+    // 스크롤 컨테이너 상세 정보 로깅
+    console.log('chatTOC: 선택된 스크롤 컨테이너 정보:', {
+      tagName: scrollContainer.tagName,
+      classList: Array.from(scrollContainer.classList),
+      offsetHeight: scrollContainer.offsetHeight,
+      scrollHeight: scrollContainer.scrollHeight,
+      scrollTop: scrollContainer.scrollTop
+    });
 
-    const chatElement = scrollContainer.querySelector(
-      `article form[data-chat-id="${chatId}"]`,
-    );
-    if (!chatElement) return;
+    // 실제 메시지 컨테이너를 찾기 위한 개선된 로직
+    // 1. 먼저 data-chat-id가 설정된 실제 메시지 요소를 찾기
+    let chatElement = document.querySelector(`[data-chat-id="${chatId}"]`);
+    console.log('chatTOC: data-chat-id로 찾은 메시지 요소:', !!chatElement);
+    
+    if (chatElement) {
+      console.log('chatTOC: 찾은 메시지 요소 정보:', {
+        tagName: chatElement.tagName,
+        classList: Array.from(chatElement.classList),
+        offsetTop: chatElement.offsetTop,
+        offsetHeight: chatElement.offsetHeight
+      });
+    }
+    
+    // 2. 메시지 요소를 못 찾으면 form 요소로 대체 시도
+    if (!chatElement) {
+      chatElement = scrollContainer.querySelector(`form[data-chat-id="${chatId}"]`);
+      console.log('chatTOC: form 선택자로 찾은 결과:', !!chatElement);
+      
+      // form을 찾았으면 다음 sibling 요소(실제 메시지)를 찾기
+      if (chatElement) {
+        const nextSibling = chatElement.nextElementSibling;
+        if (nextSibling) {
+          console.log('chatTOC: form의 다음 sibling 요소 발견:', nextSibling.tagName);
+          chatElement = nextSibling;
+        }
+      }
+    }
+    
+    if (!chatElement) {
+      console.warn('chatTOC: chatId에 해당하는 요소를 찾을 수 없습니다:', chatId);
+      return;
+    }
 
-    const offsetTop = chatElement.offsetTop - 45;
+    // getBoundingClientRect()를 사용한 정확한 위치 계산
+    const chatRect = chatElement.getBoundingClientRect();
+    const containerRect = scrollContainer.getBoundingClientRect();
+    const currentScrollTop = scrollContainer.scrollTop;
+    
+    // 타겟 요소의 상대적 위치 계산
+    const relativeTop = chatRect.top - containerRect.top;
+    const targetScrollTop = currentScrollTop + relativeTop - 45; // 45px 오프셋
+    
+    console.log('chatTOC: 스크롤 위치 계산:', {
+      chatRect: { top: chatRect.top, height: chatRect.height },
+      containerRect: { top: containerRect.top, height: containerRect.height },
+      currentScrollTop: currentScrollTop,
+      relativeTop: relativeTop,
+      targetScrollTop: targetScrollTop,
+      offsetTopMethod: chatElement.offsetTop - 45
+    });
 
     scrollContainer.scrollTo({
-      top: offsetTop,
+      top: targetScrollTop,
       behavior: 'smooth',
     });
+    
+    // 스크롤 실행 후 검증
+    setTimeout(() => {
+      console.log('chatTOC: 스크롤 실행 후 위치:', {
+        newScrollTop: scrollContainer.scrollTop,
+        targetReached: Math.abs(scrollContainer.scrollTop - targetScrollTop) < 10
+      });
+    }, 500);
   };
 
   const createTocEntry = (chatId, title) => {
@@ -156,7 +242,7 @@ if (!window.utils.toc) {
     });
   };
 
-  const addTocEntry = (chatId, title, chatElement) => {
+  const addTocEntry = (chatId, title) => {
     const tocContainer = document.getElementById('toc-container');
     if (!tocContainer) return;
 
@@ -186,11 +272,11 @@ if (!window.utils.toc) {
     );
 
     const chatElements = document.querySelectorAll('[data-chat-id]');
-    chatElements.forEach((chatElement, index) => {
+    chatElements.forEach((_, index) => {
       const chatId = `chat-${index}`;
       if (pageData[chatId]) {
         // 페이지 데이터에 사용자 정의 타이틀이 있으면 추가
-        addTocEntry(chatId, pageData[chatId], chatElement);
+        addTocEntry(chatId, pageData[chatId]);
         return;
       }
 
@@ -199,7 +285,7 @@ if (!window.utils.toc) {
         `[data-chat-id="${chatId}"] input`,
       );
       if (titleInput) {
-        addTocEntry(chatId, titleInput.value, chatElement);
+        addTocEntry(chatId, titleInput.value);
       }
     });
 
