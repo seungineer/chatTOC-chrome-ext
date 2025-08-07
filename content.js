@@ -6,15 +6,10 @@ const { toggleAutoTitle } = window.utils.autoTitle;
 let observer = null;
 
 const initializePage = async (autoTitleEnabled) => {
-  console.log('chatTOC: 페이지 초기화 시작, autoTitleEnabled:', autoTitleEnabled);
-  
   const hasNewElements = await initializeChatElements();
-  console.log('chatTOC: 새로운 요소 발견:', hasNewElements);
-  
   if (hasNewElements) {
     await toggleAutoTitle(autoTitleEnabled).then(async () => {
       await initializeTOC(autoTitleEnabled);
-      console.log('chatTOC: TOC 초기화 완료');
     });
   }
 };
