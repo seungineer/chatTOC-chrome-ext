@@ -66,17 +66,20 @@ if (!window.utils.chat) {
   };
 
   const initializeChatElements = async () => {
+    // Helper function to check if bottommost p tag has ::after pseudo-element
+    const hasBottommostPAfter = (element) => {
+      const pTags = element.querySelectorAll('p');
+      if (pTags.length === 0) return false;
+      
+      const bottomP = pTags[pTags.length - 1];
+      const afterStyles = getComputedStyle(bottomP, '::after');
+      return afterStyles.content !== 'none' && afterStyles.content !== '""' && afterStyles.content !== '';
+    };
+
     // 더 안정적인 선택자 패턴들을 시도 (ChatGPT 구조 변경에 대응)
-    let chatElements = document.querySelectorAll(
-      'div.mx-auto.flex.flex-1.text-base.gap-4.md\\:gap-5.lg\\:gap-6',
-    );
+    let chatElements = document.querySelectorAll('div[data-message-author-role="assistant"]');
     
     // 기본 선택자가 작동하지 않으면 fallback 선택자들 시도
-    if (chatElements.length === 0) {
-      // 대안 선택자 1: data-message-author-role 속성이 있는 요소들
-      chatElements = document.querySelectorAll('div[data-message-author-role]');
-    }
-    
     if (chatElements.length === 0) {
       // 대안 선택자 2: 일반적인 메시지 컨테이너 패턴
       chatElements = document.querySelectorAll('div[class*="mx-auto"][class*="flex"][class*="text-base"]');
@@ -87,14 +90,13 @@ if (!window.utils.chat) {
       chatElements = document.querySelectorAll('article div[class*="mx-auto"]');
     }
 
+    // Filter out elements where bottommost p tag has ::after content
+    chatElements = Array.from(chatElements).filter(element => !hasBottommostPAfter(element));
+
     const results = await Promise.all(
       Array.from(chatElements).map((element, index) => {
-        if (index % 2 === 1) {
-          // 답변 요소에 입력창 추가
-          return processChatElement(element, Math.floor(index / 2));
-        }
-        // 입력 요소에 'data-input-id' 추가
-        return processInputElement(element, Math.floor(index / 2));
+        // 답변 요소에 입력창 추가
+        return processChatElement(element, index);
       }),
     );
 
