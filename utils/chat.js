@@ -54,17 +54,6 @@ if (!window.utils.chat) {
     return true;
   };
 
-  const processInputElement = async (inputElement, index) => {
-    if (inputElement.hasAttribute('data-input-id')) {
-      return false;
-    }
-
-    const inputId = `input-${index}`;
-    inputElement.setAttribute('data-input-id', inputId);
-
-    return true;
-  };
-
   const initializeChatElements = async () => {
     // Helper function to check if bottommost p tag has ::after pseudo-element
     const hasBottommostPAfter = (element) => {
@@ -79,16 +68,8 @@ if (!window.utils.chat) {
     // 더 안정적인 선택자 패턴들을 시도 (ChatGPT 구조 변경에 대응)
     let chatElements = document.querySelectorAll('div[data-message-author-role="assistant"]');
     
-    // 기본 선택자가 작동하지 않으면 fallback 선택자들 시도
-    if (chatElements.length === 0) {
-      // 대안 선택자 2: 일반적인 메시지 컨테이너 패턴
-      chatElements = document.querySelectorAll('div[class*="mx-auto"][class*="flex"][class*="text-base"]');
-    }
-    
-    if (chatElements.length === 0) {
-      // 대안 선택자 3: article 태그 사용
-      chatElements = document.querySelectorAll('article div[class*="mx-auto"]');
-    }
+    // 기본 선택자가 작동하지 않으면 복귀
+    if (chatElements.length === 0) return;
 
     // Filter out elements where bottommost p tag has ::after content
     chatElements = Array.from(chatElements).filter(element => !hasBottommostPAfter(element));
